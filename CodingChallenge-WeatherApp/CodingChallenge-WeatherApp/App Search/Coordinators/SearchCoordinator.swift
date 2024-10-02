@@ -43,7 +43,7 @@ final class SearchCoordinator: Router<SearchRoute> {
 
     // MARK: View Creation Methods
 
-    //MARK: - Home Methods
+    //MARK: - Permission Methods
     func makeSearchViewModel(locationManager: LocationManager) -> SearchViewModel {
         let vm = SearchViewModel(locationManager: locationManager)
         return vm

@@ -1,5 +1,5 @@
 //
-//  HomeView.swift
+//  PermissionView.swift
 //  CodingChallenge-WeatherApp
 //
 //  Created by Samuel Folledo on 10/1/24.
@@ -8,8 +8,8 @@
 import Combine
 import SwiftUI
 
-struct HomeView: View {
-    @StateObject var vm = HomeViewModel()
+struct PermissionView: View {
+    @StateObject var vm = PermissionViewModel()
 
     var body: some View {
         VStack {

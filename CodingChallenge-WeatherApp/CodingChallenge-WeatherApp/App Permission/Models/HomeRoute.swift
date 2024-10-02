@@ -1,5 +1,5 @@
 //
-//  HomeRoute.swift
+//  PermissionRoute.swift
 //  CodingChallenge-WeatherApp
 //
 //  Created by Samuel Folledo on 10/2/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum HomeRoute: Hashable, Identifiable {
+enum PermissionRoute: Hashable, Identifiable {
     ///Fresh install flow to ask user for location permission
     //    case initialLocationPermission
     ///Flow when app has location permission. Keyword is current location after location permission is granted
@@ -28,7 +28,7 @@ enum HomeRoute: Hashable, Identifiable {
         }
     }
 
-    static func == (lhs: HomeRoute, rhs: HomeRoute) -> Bool {
+    static func == (lhs: PermissionRoute, rhs: PermissionRoute) -> Bool {
         return lhs.id == rhs.id
     }
 

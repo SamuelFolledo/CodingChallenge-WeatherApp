@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var homeCoordinator = HomeCoordinator()
+    @StateObject var permissionCoordinator = PermissionCoordinator()
     @StateObject var searchCoordinator = SearchCoordinator()
     @StateObject var locationManager: LocationManager = LocationManager()
 
@@ -16,19 +16,19 @@ struct ContentView: View {
         if locationManager.hasRequestedAuthorization {
             searchView
         } else if locationManager.hasDeniedAuthorization {
-            homeView
+            permissionView
         } else {
             if locationManager.authorizationStatus == nil {
                 ProgressView("Checking permissions...")
             } else {
-                homeView
+                permissionView
             }
         }
     }
 
-    var homeView: some View {
-        NavigationStack(path: $homeCoordinator.navigationPath) {
-            homeCoordinator.build(locationManager: locationManager)
+    var permissionView: some View {
+        NavigationStack(path: $permissionCoordinator.navigationPath) {
+            permissionCoordinator.build(locationManager: locationManager)
         }
     }
 

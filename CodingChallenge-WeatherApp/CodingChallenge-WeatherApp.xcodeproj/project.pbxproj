@@ -395,10 +395,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"CodingChallenge-WeatherApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"CodingChallenge-WeatherApp/Resources/Preview Content\"";
 				DEVELOPMENT_TEAM = 9NY68F4K3P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please grant the app access to your location in order to send weather data on your current location";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please grant the app access to your location in order to send weather data on your current location";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -424,10 +426,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"CodingChallenge-WeatherApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"CodingChallenge-WeatherApp/Resources/Preview Content\"";
 				DEVELOPMENT_TEAM = 9NY68F4K3P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please grant the app access to your location in order to send weather data on your current location";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please grant the app access to your location in order to send weather data on your current location";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

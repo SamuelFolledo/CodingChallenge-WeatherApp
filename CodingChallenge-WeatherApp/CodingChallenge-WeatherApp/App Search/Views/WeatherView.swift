@@ -25,9 +25,7 @@ struct WeatherView: View {
                     .foregroundStyle(Color.primary)
 
                 if let weatherIcon = weatherIcon {
-                    Image(uiImage: weatherIcon)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
+                    ImageViewRepresentable(image: weatherIcon)
                         .frame(width: 100, height: 100)
                 }
 

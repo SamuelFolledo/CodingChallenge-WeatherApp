@@ -12,7 +12,6 @@ struct SearchView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass?
 
     @ObservedObject var vm: SearchViewModel
-    
 
     var body: some View {
         GeometryReader { reader in
@@ -40,8 +39,9 @@ struct SearchView: View {
             }
         }
         .onAppear {
-            if let location = vm.locationManager.lastKnownLocation {
-                vm.fetchWeatherForCurrentLocation(location: location)
+            if vm.weatherData == nil,
+               let location = vm.locationManager.lastKnownLocation {
+                vm.fetchWeatherFrom(location: location)
             }
         }
         .alert(vm.alertTitle, isPresented: $vm.isAlertPresented, actions: {

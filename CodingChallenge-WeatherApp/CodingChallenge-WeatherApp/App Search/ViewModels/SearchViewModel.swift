@@ -28,7 +28,8 @@ class SearchViewModel: BaseViewModel {
         loadCachedData()
     }
 
-    func fetchWeatherForCurrentLocation(location: Location) {
+    func fetchWeatherFrom(location: Location) {
+        print("Fetching weather from location: \(location)")
         updateLoadingMessage(to: "Fetching weather from current location")
 
         weatherService.fetchWeather(for: location)

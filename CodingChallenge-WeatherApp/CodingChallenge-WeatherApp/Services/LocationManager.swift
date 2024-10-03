@@ -59,12 +59,6 @@ class LocationManager: NSObject, ObservableObject {
     func updateState(_ toState: LocationState) {
         guard state != toState else { return }
         print("Updating state from \(state.rawValue) to \(toState.rawValue). didShowOnboarding \(UserDefaults.didShowOnboarding)")
-        switch toState {
-        case .notDetermined:
-            break
-        case .authorized, .skipped:
-            UserDefaults.didShowOnboarding = true
-        }
         state = toState
     }
 
@@ -99,15 +93,24 @@ extension LocationManager: CLLocationManagerDelegate {
         authorizationStatus = status
         switch status {
         case .authorizedAlways, .authorizedWhenInUse:
-            updateLastKnownLocation(manager.location)
+            if !UserDefaults.didShowOnboarding {
+                UserDefaults.didShowOnboarding = true
+            }
             updateState(.authorized)
+            updateLastKnownLocation(manager.location)
         case .notDetermined:
             if UserDefaults.didShowOnboarding {
                 updateState(.skipped)
             } else {
+                if !UserDefaults.didShowOnboarding {
+                    UserDefaults.didShowOnboarding = true
+                }
                 updateState(.notDetermined)
             }
         case .denied, .restricted:
+            if !UserDefaults.didShowOnboarding {
+                UserDefaults.didShowOnboarding = true
+            }
             updateState(.skipped)
         default:
             break

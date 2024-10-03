@@ -64,3 +64,12 @@ These requirements are rather high-level and vague. If there are details I have 
 - **Performance**: Optimize the application for smooth and responsive user interactions.
 - **Accessibility**: Ensure the application is accessible, supporting features like VoiceOver.
 - **Localization**: Prepare the application for localization to support multiple languages.
+
+## Final Result
+
+
+<img src="">
+
+| Onboarding | Search |
+| --- | --- |
+| <img src="https://github.com/SamuelFolledo/CodingChallenge-WeatherApp/blob/main/static/onboarding.png" height="800"> | <img src="https://github.com/SamuelFolledo/CodingChallenge-WeatherApp/blob/main/static/search.png" height="800"> |

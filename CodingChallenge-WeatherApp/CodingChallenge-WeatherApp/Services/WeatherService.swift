@@ -9,11 +9,6 @@ import CoreLocation
 import Foundation
 import Combine
 
-//TODO: Check if needed
-protocol WeatherServiceProtocol {
-    func fetchWeather(for location: Location, completion: @escaping (Result<WeatherData, WeatherError>) -> Void)
-}
-
 class WeatherService: ObservableObject {
     private let apiKey = weatherAPIKey
     private let baseURL = "https://api.openweathermap.org/data/2.5/weather"

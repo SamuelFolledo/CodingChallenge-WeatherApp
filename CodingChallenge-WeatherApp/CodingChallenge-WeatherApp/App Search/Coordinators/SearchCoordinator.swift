@@ -14,20 +14,16 @@ final class SearchCoordinator: Router<SearchRoute> {
     private var id: UUID = UUID()
     private var cancellables = Set<AnyCancellable>()
 
-    init(route: SearchRoute = .locationGranted) {
+    init(route: SearchRoute = .search) {
         self.route = route
+        super.init()
     }
 
     @ViewBuilder func build(locationManager: LocationManager) -> some View {
         switch self.route {
-        case .locationGranted:
-//            Text("Location \(self.route)")
-            SearchView(vm: self.makeSearchViewModel(locationManager: locationManager))
-//        case .locationNotGranted:
-//            Text("Location \(self.route)")
-//        case .lastSearch:
-//            Text("Location \(self.route)")
-        case .detail:
+        case .search:
+            searchView(locationManager: locationManager)
+        case .weatherDetail:
             searchDetailView(weatherData: fakeWeatherData)
         }
     }
@@ -42,6 +38,9 @@ final class SearchCoordinator: Router<SearchRoute> {
     }
 
     // MARK: View Creation Methods
+    private func searchView(locationManager: LocationManager) -> some View {
+        SearchView(vm: self.makeSearchViewModel(locationManager: locationManager))
+    }
 
     //MARK: - Permission Methods
     func makeSearchViewModel(locationManager: LocationManager) -> SearchViewModel {
@@ -56,11 +55,11 @@ final class SearchCoordinator: Router<SearchRoute> {
     }
 
     // MARK: View Bindings
-    //    private func bind(view: SearchsListView) {
+    //    private func bind(view: SearchView) {
     //        view.didClickUser
     //            .receive(on: DispatchQueue.main)
     //            .sink(receiveValue: { [weak self] user in
-    //                self?.showWeatherData(for: user)
+    //                self?.showWeatherDetail(for: user)
     //            })
     //            .store(in: &cancellables)
     //    }
@@ -68,7 +67,7 @@ final class SearchCoordinator: Router<SearchRoute> {
 
 // MARK: Navigation Related Extensions
 extension SearchCoordinator {
-    private func showWeatherData(for weather: WeatherData) {
-        //        pushCoordinator.send(SearchCoordinator(page: .profile, userID: user.id))
+    private func showWeatherDetail(for weather: WeatherData) {
+        route = .weatherDetail
     }
 }

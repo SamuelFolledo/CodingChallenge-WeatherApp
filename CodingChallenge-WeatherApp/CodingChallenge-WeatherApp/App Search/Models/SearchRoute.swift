@@ -9,10 +9,8 @@ import Foundation
 
 /// Enum to identify Search flow screen Types
 enum SearchRoute: String, Identifiable {
-    case locationGranted
-    //    case locationNotGranted
-    //    case lastSearch
-    case detail
+    case search
+    case weatherDetail
 
     var id: String {
         self.rawValue

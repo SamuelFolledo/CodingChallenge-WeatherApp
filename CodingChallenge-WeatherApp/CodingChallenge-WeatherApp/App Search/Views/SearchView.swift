@@ -19,8 +19,6 @@ struct SearchView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: vStackPadding) {
                     weatherView
-
-                    Text("Location Permission: \(vm.locationManager.statusText())")
                 }
                 .padding(.horizontal, horizontalPadding)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -28,6 +26,18 @@ struct SearchView: View {
         }
         .safeAreaInset(edge: .bottom) {
             searchView
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                //Bonus Feature: locate me/location permssion button
+                Button {
+                    vm.locationManager.searchLocationButtonAction()
+                } label: {
+                    Image(systemName: vm.locationManager.state.iconName)
+                        .foregroundColor(vm.locationManager.state.iconColor)
+                        .padding(4)
+                }
+            }
         }
         .onAppear {
             if let location = vm.locationManager.lastKnownLocation {

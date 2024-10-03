@@ -8,14 +8,7 @@
 import CoreLocation
 import Combine
 
-enum LocationState: String, Codable {
-    ///when location permission has not been presented yet
-    case notDetermined
-    case authorized
-    case skipped
-}
-
-class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+class LocationManager: NSObject, ObservableObject {
     private let locationManager = CLLocationManager()
 
     //TODO: Implement to use a stored location instead
@@ -29,32 +22,39 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
 
-    //TODO: Implement to use a stored location instead
-//    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//        guard let location = locations.last else { return }
-//        lastKnownLocation = Location(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-//    }
-
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        authorizationStatus = status
-        switch status {
-        case .authorizedAlways, .authorizedWhenInUse:
-            updateState(.authorized)
+    ///depending on the state: if location permission is granted, then perform search to current location. Else, request location permission if possible
+    func searchLocationButtonAction() {
+        switch state {
         case .notDetermined:
-            if UserDefaults.didShowOnboarding {
-                updateState(.skipped)
+            requestLocationPermission()
+        case .authorized:
+            refreshLastKnownLocation()
+        case .skipped:
+            //TODO: check status
+            if let authorizationStatus {
+                switch authorizationStatus {
+                case .notDetermined:
+                    requestLocationPermission()
+                case .restricted, .denied:
+                    print("TODO: Show an alert with a button to go to Settings")
+                case .authorizedAlways, .authorizedWhenInUse:
+                    //if it was skipped but now it was authorized, then get last location
+                    refreshLastKnownLocation()
+                @unknown default:
+                    break
+                }
             } else {
-                updateState(.notDetermined)
+                requestLocationPermission()
             }
-        case .denied, .restricted:
-            updateState(.skipped)
-        default:
-            break
         }
     }
 
-    func requestLocation() {
-        locationManager.requestWhenInUseAuthorization()
+    func requestLocationPermission() {
+        locationManager.requestAlwaysAuthorization()
+    }
+
+    func refreshLastKnownLocation() {
+        locationManager.requestLocation()
     }
 
     func updateState(_ toState: LocationState) {
@@ -87,5 +87,36 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         @unknown default:
             return "Unknown"
         }
+    }
+}
+
+extension LocationManager: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        let newLastKnownLocation = Location(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        print("Updated Last known location from (\(lastKnownLocation?.latitude ?? -1),\(lastKnownLocation?.longitude ?? -1)) into (\(newLastKnownLocation.latitude),\(newLastKnownLocation.longitude))")
+        lastKnownLocation = newLastKnownLocation
+    }
+
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        authorizationStatus = status
+        switch status {
+        case .authorizedAlways, .authorizedWhenInUse:
+            updateState(.authorized)
+        case .notDetermined:
+            if UserDefaults.didShowOnboarding {
+                updateState(.skipped)
+            } else {
+                updateState(.notDetermined)
+            }
+        case .denied, .restricted:
+            updateState(.skipped)
+        default:
+            break
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
+        print("Error on location manager: \(error.localizedDescription)")
     }
 }

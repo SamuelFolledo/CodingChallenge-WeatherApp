@@ -24,7 +24,7 @@ struct OnboardingView: View {
             Spacer()
 
             Button("Request Location Permission") {
-                vm.locationManager.requestLocation()
+                vm.locationManager.requestLocationPermission()
             }
             .foregroundStyle(Color.white)
             .padding()

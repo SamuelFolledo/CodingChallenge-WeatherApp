@@ -5,13 +5,13 @@
 //  Created by Samuel Folledo on 10/1/24.
 //
 
-import Combine
 import SwiftUI
 
 struct SearchDetailView: View {
     let weatherData: WeatherData
+    let image: UIImage
 
     var body: some View {
-        Text("Weather on \(weatherData.cityName) is \(weatherData.temperature)")
+        WeatherView(weatherData: weatherData, weatherIcon: image)
     }
 }

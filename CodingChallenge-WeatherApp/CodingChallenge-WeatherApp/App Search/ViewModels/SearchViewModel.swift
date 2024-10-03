@@ -15,7 +15,7 @@ class SearchViewModel: BaseViewModel {
     @Published var weatherIcon: UIImage?
     @Published var locationManager: LocationManager
 
-    let didTransitionToDetail = PassthroughSubject<WeatherData, Never>()
+    let didTransitionToDetail = PassthroughSubject<(WeatherData, UIImage), Never>()
 
     private let weatherService: WeatherService
     private let imageCacheService: ImageCacheService

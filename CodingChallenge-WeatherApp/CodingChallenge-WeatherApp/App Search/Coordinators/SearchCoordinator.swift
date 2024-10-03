@@ -16,8 +16,8 @@ final class SearchCoordinator: Router<SearchRoute> {
         searchView(locationManager: locationManager)
             .navigationDestination(for: SearchRoute.self) { route in
                 switch route {
-                case .weatherDetail(let weatherData):
-                    SearchDetailView(weatherData: weatherData)
+                case .weatherDetail(let weatherData, let image):
+                    SearchDetailView(weatherData: weatherData, image: image)
                 }
             }
     }
@@ -41,8 +41,8 @@ final class SearchCoordinator: Router<SearchRoute> {
         let vm = SearchViewModel(locationManager: locationManager)
         vm.didTransitionToDetail
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] weatherData in
-                self?.showWeatherDetail(weatherData)
+            .sink(receiveValue: { [weak self] (weatherData, image) in
+                self?.showWeatherDetail(weatherData, image: image)
             })
             .store(in: &subscriptions)
         return vm
@@ -51,7 +51,7 @@ final class SearchCoordinator: Router<SearchRoute> {
 
 // MARK: Navigation Related Extensions
 extension SearchCoordinator {
-    private func showWeatherDetail(_ weather: WeatherData) {
-        navigationPath.append(.weatherDetail(weatherData: weather))
+    private func showWeatherDetail(_ weather: WeatherData, image: UIImage) {
+        navigationPath.append(.weatherDetail(weatherData: weather, image: image))
     }
 }

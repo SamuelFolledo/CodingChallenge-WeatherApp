@@ -5,15 +5,15 @@
 //  Created by Samuel Folledo on 10/2/24.
 //
 
-import Foundation
+import UIKit
 
 /// Enum to identify Search flow screen Types
 enum SearchRoute: Hashable, Identifiable {
-    case weatherDetail(weatherData: WeatherData)
+    case weatherDetail(weatherData: WeatherData, image: UIImage)
 
     var id: String {
         switch self {
-        case .weatherDetail(let weatherData):
+        case .weatherDetail(let weatherData, _):
             "weatherDetail.\(weatherData.id)"
         }
     }

@@ -15,19 +15,18 @@ protocol WeatherServiceProtocol {
 }
 
 class WeatherService: ObservableObject {
-    private let apiKey = "YOUR_API_KEY_HERE"
+    private let apiKey = weatherAPIKey
     private let baseURL = "https://api.openweathermap.org/data/2.5/weather"
-    private let cache = UserDefaults.standard
 
     @Published var lastWeatherData: WeatherData?
 
     func fetchWeather(for location: Location) -> AnyPublisher<WeatherData, WeatherError> {
-        let urlString = "\(baseURL)?lat=\(location.latitude)&lon=\(location.longitude)&units=metric&appid=\(apiKey)"
+        let urlString = "\(baseURL)?lat=\(location.latitude)&lon=\(location.longitude)&units=\(measurementType.rawValue)&appid=\(apiKey)"
         return performRequest(with: urlString)
     }
 
     func fetchWeather(for cityName: String) -> AnyPublisher<WeatherData, WeatherError> {
-        let urlString = "\(baseURL)?q=\(cityName)&units=metric&appid=\(apiKey)"
+        let urlString = "\(baseURL)?q=\(cityName)&units=\(measurementType.rawValue)&appid=\(apiKey)"
         return performRequest(with: urlString)
     }
 
@@ -35,15 +34,23 @@ class WeatherService: ObservableObject {
         guard let url = URL(string: urlString) else {
             return Fail(error: .invalidURL).eraseToAnyPublisher()
         }
-
         return URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
+            .handleEvents(receiveOutput: { data in
+                //Uncomment to view the response
+                if let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
+                   let prettyPrintedData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted]),
+                   let prettyPrintedString = String(data: prettyPrintedData, encoding: .utf8) {
+                    print("GET result from url: \(urlString) is JSON:")
+                    print(prettyPrintedString)
+                }
+            })
             .decode(type: WeatherResponse.self, decoder: JSONDecoder())
             .map { response in
                 let weatherData = WeatherData(cityName: response.name,
-                                              temperature: response.temperature.value,
-                                              description: response.weather.description,
-                                              iconName: response.weather.icon)
+                                              temperature: response.main.temp,
+                                              description: response.weather.first?.main ?? "no description",
+                                              iconName: response.weather.first?.icon ?? "placeholderIcon")
                 self.cacheWeatherData(weatherData)
                 return weatherData
             }
@@ -59,15 +66,14 @@ class WeatherService: ObservableObject {
 
     private func cacheWeatherData(_ weatherData: WeatherData) {
         if let encoded = try? JSONEncoder().encode(weatherData) {
-            cache.set(encoded, forKey: "lastWeatherData")
+            UserDefaults.lastWeatherData = encoded
         }
         self.lastWeatherData = weatherData
     }
 
     func loadCachedWeatherData() {
-        if let savedWeatherData = cache.object(forKey: "lastWeatherData") as? Data,
-           let decodedWeatherData = try? JSONDecoder().decode(WeatherData.self, from: savedWeatherData) {
-            self.lastWeatherData = decodedWeatherData
+        if let lastWeatherData = UserDefaults.lastWeatherData {
+            self.lastWeatherData = try? JSONDecoder().decode(WeatherData.self, from: lastWeatherData)
         }
     }
 }

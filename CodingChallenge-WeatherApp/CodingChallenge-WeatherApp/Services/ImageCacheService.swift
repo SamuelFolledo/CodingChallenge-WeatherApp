@@ -66,11 +66,11 @@ class ImageCacheService: ObservableObject {
     }
 
     func loadLastIconName() {
-        lastIconName = UserDefaults.standard.string(forKey: "lastIconName")
+        lastIconName = UserDefaults.lastIconName
     }
 
     private func saveLastIconName(_ iconName: String) {
-        UserDefaults.standard.set(iconName, forKey: "lastIconName")
+        UserDefaults.lastIconName = iconName
         lastIconName = iconName
     }
 }

@@ -13,8 +13,6 @@ class SearchViewModel: BaseViewModel {
     @Published var searchText: String = ""
     @Published var weatherData: WeatherData?
     @Published var weatherIcon: UIImage?
-    @Published var isLoading = false
-    @Published var error: WeatherError?
     @Published var locationManager: LocationManager
 
     private let weatherService: WeatherService
@@ -31,14 +29,14 @@ class SearchViewModel: BaseViewModel {
     }
 
     func fetchWeatherForCurrentLocation(location: Location) {
-        isLoading = true
+        updateLoadingMessage(to: "Fetching weather from current location")
 
         weatherService.fetchWeather(for: location)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
-                self?.isLoading = false
+                self?.updateLoadingMessage(to: nil)
                 if case .failure(let error) = completion {
-                    self?.error = error
+                    self?.handleWeatherError(error)
                 }
             }, receiveValue: { [weak self] weatherData in
                 self?.weatherData = weatherData
@@ -48,14 +46,14 @@ class SearchViewModel: BaseViewModel {
     }
 
     func searchWeather(for cityName: String) {
-        isLoading = true
+        updateLoadingMessage(to: "Fetching weather for \(cityName)")
 
         weatherService.fetchWeather(for: cityName)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
-                self?.isLoading = false
+                self?.updateLoadingMessage(to: nil)
                 if case .failure(let error) = completion {
-                    self?.error = error
+                    self?.handleWeatherError(error)
                 }
             }, receiveValue: { [weak self] weatherData in
                 self?.weatherData = weatherData
@@ -69,7 +67,7 @@ class SearchViewModel: BaseViewModel {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.error = error
+                    self?.handleWeatherError(error)
                 }
             }, receiveValue: { [weak self] image in
                 self?.weatherIcon = image
@@ -86,6 +84,19 @@ class SearchViewModel: BaseViewModel {
             if let iconName = lastWeatherData.iconName {
                 fetchWeatherIcon(named: iconName)
             }
+        }
+    }
+
+    private func handleWeatherError(_ error: WeatherError) {
+        updateLoadingMessage(to: nil)
+        switch error {
+        case .networkError(let error), .decodingError(let error):
+            print("TODO Better error handling: \(error.localizedDescription)")
+            updateError("Invalid City")
+        case .unknown, .invalidURL:
+            updateError("Invalid City")
+        case .invalidImageData:
+            updateError("Error download image")
         }
     }
 }

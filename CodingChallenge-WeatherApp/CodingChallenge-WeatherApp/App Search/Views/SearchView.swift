@@ -9,92 +9,98 @@ import SwiftUI
 import CoreLocation
 
 struct SearchView: View {
+    @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass?
+
     @ObservedObject var vm: SearchViewModel
+    
 
     var body: some View {
         GeometryReader { reader in
-            VStack(spacing: vStackPadding) {
-                if vm.isLoading {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                } else if let weatherData = vm.weatherData {
-                    Text(weatherData.cityName)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: vStackPadding) {
+                    weatherView
 
-                    if let weatherIcon = vm.weatherIcon {
-                        Image(uiImage: weatherIcon)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 100, height: 100)
-                    }
-
-                    Text("\(String(format: "%.1f", weatherData.temperature))°C")
-                        .font(.title)
-                        .fontWeight(.semibold)
-
-                    Text(weatherData.description)
-                        .font(.title3)
-                        .foregroundColor(.secondary)
+                    Text("Location Permission: \(vm.locationManager.statusText())")
                 }
-
-                Text("Location Permission: \(vm.locationManager.statusText())")
+                .padding(.horizontal, horizontalPadding)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .padding(.horizontal, horizontalPadding)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .safeAreaInset(edge: .bottom) {
             searchView
         }
-        .navigationBarTitle("Search Weather", displayMode: .inline)
         .onAppear {
             if let location = vm.locationManager.lastKnownLocation {
                 vm.fetchWeatherForCurrentLocation(location: location)
             }
         }
-        .alert(item: $vm.error) { error in
-            Alert(title: Text("Error"),
-                  message: Text(error.localizedDescription),
-                  dismissButton: .default(Text("OK")))
-        }
-    }
+        .alert(vm.alertTitle, isPresented: $vm.isAlertPresented, actions: {
+            VStack {
+                if !vm.alertMessage.isEmpty {
+                    Text(vm.alertMessage)
+                }
 
-    var refreshButton: some View {
-        Button("Refresh") {
-            if let location = vm.locationManager.lastKnownLocation {
-                vm.fetchWeatherForCurrentLocation(location: location)
+                Button("OK") {
+                    vm.isAlertPresented = false
+                }
             }
+        })
+        .overlay {
+            LoadingView(message: vm.loadingMessage)
         }
-        .padding()
-        .background(Color.blue)
-        .foregroundColor(.white)
-        .cornerRadius(roundedRectangleCornerRadius)
     }
 
     var searchView: some View {
         VStack(spacing: vStackPadding * 2) {
-            TextField("Search", text: $vm.searchText)
+            TextField("Enter a city name", text: $vm.searchText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-
-            searchButton
+                .onSubmit {
+                    vm.searchWeather(for: vm.searchText)
+//                    if let location = vm.locationManager.lastKnownLocation {
+//                        vm.fetchWeatherForCurrentLocation(location: location)
+//                    }
+                }
+                .submitLabel(.search)
+                .disableAutocorrection(verticalSizeClass == .compact ? true : false) //reduce keyboard height on small height (landscape on iPhone)
         }
         .padding(.horizontal, horizontalPadding)
         .padding(.vertical, verticalPadding)
     }
 
-    var searchButton: some View {
-        Button {
-            if let location = vm.locationManager.lastKnownLocation {
-                vm.fetchWeatherForCurrentLocation(location: location)
+//    var searchButton: some View {
+//        Button {
+//            vm.searchWeather(for: vm.searchText)
+//        } label: {
+//            Text("Search")
+//                .padding(.horizontal, horizontalPadding)
+//                .padding(.vertical, verticalPadding)
+//                .frame(maxWidth: .infinity)
+//                .background(appColor)
+//                .foregroundColor(.white)
+//                .cornerRadius(roundedRectangleCornerRadius)
+//        }
+//    }
+
+    @ViewBuilder var weatherView: some View {
+        if let weatherData = vm.weatherData {
+            Text(weatherData.cityName)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+
+            if let weatherIcon = vm.weatherIcon {
+                Image(uiImage: weatherIcon)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100, height: 100)
             }
-        } label: {
-            Text("Search")
-                .padding(.horizontal, horizontalPadding)
-                .padding(.vertical, verticalPadding)
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(roundedRectangleCornerRadius)
+
+            Text("\(String(format: "%.1f", weatherData.temperature))\(measurementType.symbol)")
+                .font(.title)
+                .fontWeight(.semibold)
+
+            Text(weatherData.description)
+                .font(.title3)
+                .foregroundColor(.secondary)
         }
     }
 }

@@ -30,7 +30,6 @@ class LocationManager: NSObject, ObservableObject {
         case .authorized:
             refreshLastKnownLocation()
         case .skipped:
-            //TODO: check status
             if let authorizationStatus {
                 switch authorizationStatus {
                 case .notDetermined:
@@ -93,15 +92,14 @@ class LocationManager: NSObject, ObservableObject {
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        let newLastKnownLocation = Location(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        print("Updated Last known location from (\(lastKnownLocation?.latitude ?? -1),\(lastKnownLocation?.longitude ?? -1)) into (\(newLastKnownLocation.latitude),\(newLastKnownLocation.longitude))")
-        lastKnownLocation = newLastKnownLocation
+        updateLastKnownLocation(location)
     }
 
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         authorizationStatus = status
         switch status {
         case .authorizedAlways, .authorizedWhenInUse:
+            updateLastKnownLocation(manager.location)
             updateState(.authorized)
         case .notDetermined:
             if UserDefaults.didShowOnboarding {
@@ -118,5 +116,12 @@ extension LocationManager: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
         print("Error on location manager: \(error.localizedDescription)")
+    }
+}
+
+private extension LocationManager {
+    func updateLastKnownLocation(_ location: CLLocation?) {
+        print("Updating Last known location from (\(lastKnownLocation?.latitude ?? -1),\(lastKnownLocation?.longitude ?? -1)) into (\(location?.coordinate.latitude ?? -1),\(location?.coordinate.longitude ?? -1))")
+        self.lastKnownLocation = Location(latitude: location?.coordinate.latitude ?? -1, longitude: location?.coordinate.longitude ?? -1)
     }
 }

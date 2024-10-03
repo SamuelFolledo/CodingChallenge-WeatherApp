@@ -38,6 +38,8 @@ struct SearchView: View {
                         .foregroundColor(.secondary)
                 }
 
+                Text("Location Permission: \(vm.locationManager.statusText())")
+
                 Button("Refresh") {
                     if let location = vm.locationManager.lastKnownLocation {
                         vm.fetchWeatherForCurrentLocation(location: location)

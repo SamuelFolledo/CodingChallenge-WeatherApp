@@ -8,21 +8,25 @@
 import CoreLocation
 import Combine
 
+enum LocationState: String, Codable {
+    ///when location permission has not been presented yet
+    case notDetermined
+    case authorized
+    case skipped
+}
+
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
 
     //TODO: Implement to use a stored location instead
     @Published var lastKnownLocation: Location?
     @Published var authorizationStatus: CLAuthorizationStatus?
-    @Published var hasRequestedAuthorization: Bool = false
-    @Published var hasDeniedAuthorization: Bool = false
+    @Published private(set) var state: LocationState = .notDetermined
 
     override init() {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-//        locationManager.requestWhenInUseAuthorization()
-//        locationManager.startUpdatingLocation()
     }
 
     //TODO: Implement to use a stored location instead
@@ -35,13 +39,15 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         authorizationStatus = status
         switch status {
         case .authorizedAlways, .authorizedWhenInUse:
-            print("Location status is now \(statusText()), go to search view")
-            hasRequestedAuthorization = true
+            updateState(.authorized)
         case .notDetermined:
-            print("TODO: Ask for user permission")
+            if UserDefaults.didShowOnboarding {
+                updateState(.skipped)
+            } else {
+                updateState(.notDetermined)
+            }
         case .denied, .restricted:
-            print("TODO: Show an alert or view that redirects to Settings")
-            hasDeniedAuthorization = true
+            updateState(.skipped)
         default:
             break
         }
@@ -49,6 +55,18 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     func requestLocation() {
         locationManager.requestWhenInUseAuthorization()
+    }
+
+    func updateState(_ toState: LocationState) {
+        guard state != toState else { return }
+        print("Updating state from \(state.rawValue) to \(toState.rawValue). didShowOnboarding \(UserDefaults.didShowOnboarding)")
+        switch toState {
+        case .notDetermined:
+            break
+        case .authorized, .skipped:
+            UserDefaults.didShowOnboarding = true
+        }
+        state = toState
     }
 
     func statusText() -> String {

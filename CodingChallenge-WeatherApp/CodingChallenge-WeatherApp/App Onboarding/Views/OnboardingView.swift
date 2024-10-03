@@ -1,5 +1,5 @@
 //
-//  PermissionView.swift
+//  OnboardingView.swift
 //  CodingChallenge-WeatherApp
 //
 //  Created by Samuel Folledo on 10/1/24.
@@ -8,8 +8,8 @@
 import Combine
 import SwiftUI
 
-struct PermissionView: View {
-    @StateObject var vm = PermissionViewModel()
+struct OnboardingView: View {
+    @StateObject var vm = OnboardingViewModel()
 
     var body: some View {
         VStack {
@@ -32,7 +32,7 @@ struct PermissionView: View {
             .clipShape(RoundedRectangle(cornerRadius: 16))
 
             Button("Skip for now") {
-                vm.locationManager.hasRequestedAuthorization = true
+                vm.locationManager.updateState(.skipped)
             }
             .padding()
         }

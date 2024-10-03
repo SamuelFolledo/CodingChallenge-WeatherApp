@@ -9,11 +9,11 @@ import SwiftUI
 import CoreLocation
 
 struct SearchView: View {
-    @StateObject var vm: SearchViewModel = SearchViewModel()
+    @ObservedObject var vm: SearchViewModel
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
+        GeometryReader { reader in
+            VStack(spacing: vStackPadding) {
                 if vm.isLoading {
                     ProgressView()
                         .scaleEffect(1.5)
@@ -39,29 +39,14 @@ struct SearchView: View {
                 }
 
                 Text("Location Permission: \(vm.locationManager.statusText())")
-
-                Button("Refresh") {
-                    if let location = vm.locationManager.lastKnownLocation {
-                        vm.fetchWeatherForCurrentLocation(location: location)
-                    }
-                }
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
             }
-            .padding()
-            .navigationBarTitle("Weather", displayMode: .inline)
-            .navigationBarItems(trailing: Button(action: {
-                vm.showSearchView = true
-                print("show search view")
-            }) {
-                Image(systemName: "magnifyingglass")
-            })
-            .sheet(isPresented: $vm.showSearchView) {
-                WeatherView(vm: vm)
-            }
+            .padding(.horizontal, horizontalPadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .safeAreaInset(edge: .bottom) {
+            searchView
+        }
+        .navigationBarTitle("Search Weather", displayMode: .inline)
         .onAppear {
             if let location = vm.locationManager.lastKnownLocation {
                 vm.fetchWeatherForCurrentLocation(location: location)
@@ -71,6 +56,45 @@ struct SearchView: View {
             Alert(title: Text("Error"),
                   message: Text(error.localizedDescription),
                   dismissButton: .default(Text("OK")))
+        }
+    }
+
+    var refreshButton: some View {
+        Button("Refresh") {
+            if let location = vm.locationManager.lastKnownLocation {
+                vm.fetchWeatherForCurrentLocation(location: location)
+            }
+        }
+        .padding()
+        .background(Color.blue)
+        .foregroundColor(.white)
+        .cornerRadius(roundedRectangleCornerRadius)
+    }
+
+    var searchView: some View {
+        VStack(spacing: vStackPadding * 2) {
+            TextField("Search", text: $vm.searchText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+
+            searchButton
+        }
+        .padding(.horizontal, horizontalPadding)
+        .padding(.vertical, verticalPadding)
+    }
+
+    var searchButton: some View {
+        Button {
+            if let location = vm.locationManager.lastKnownLocation {
+                vm.fetchWeatherForCurrentLocation(location: location)
+            }
+        } label: {
+            Text("Search")
+                .padding(.horizontal, horizontalPadding)
+                .padding(.vertical, verticalPadding)
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(roundedRectangleCornerRadius)
         }
     }
 }

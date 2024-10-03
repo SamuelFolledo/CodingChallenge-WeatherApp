@@ -9,7 +9,7 @@ import Combine
 import SwiftUI
 
 struct OnboardingView: View {
-    @StateObject var vm = OnboardingViewModel()
+    @ObservedObject var vm: OnboardingViewModel
 
     var body: some View {
         VStack {

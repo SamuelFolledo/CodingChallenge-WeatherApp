@@ -29,6 +29,9 @@ struct ContentView: View {
         NavigationStack(path: $searchCoordinator.navigationPath) {
             searchCoordinator.build(locationManager: locationManager)
         }
+        .onTapGesture {
+            hideKeyboard()
+        }
     }
 }
 

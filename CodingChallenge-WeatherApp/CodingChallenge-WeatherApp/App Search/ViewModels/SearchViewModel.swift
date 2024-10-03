@@ -10,11 +10,11 @@ import CoreLocation
 import Combine
 
 class SearchViewModel: BaseViewModel {
+    @Published var searchText: String = ""
     @Published var weatherData: WeatherData?
     @Published var weatherIcon: UIImage?
     @Published var isLoading = false
     @Published var error: WeatherError?
-    @Published var showSearchView: Bool = false
     @Published var locationManager: LocationManager
 
     private let weatherService: WeatherService

@@ -15,6 +15,8 @@ class SearchViewModel: BaseViewModel {
     @Published var weatherIcon: UIImage?
     @Published var locationManager: LocationManager
 
+    let didTransitionToDetail = PassthroughSubject<WeatherData, Never>()
+
     private let weatherService: WeatherService
     private let imageCacheService: ImageCacheService
 
@@ -47,6 +49,8 @@ class SearchViewModel: BaseViewModel {
     }
 
     func searchWeather(for cityName: String) {
+        //TODO: If given more time, do more error handling to make sure cityName is a valid city before fetching for weather data
+        //TODO: Errors can be shown by making the search field red
         updateLoadingMessage(to: "Fetching weather for \(cityName)")
 
         weatherService.fetchWeather(for: cityName)
@@ -89,6 +93,7 @@ class SearchViewModel: BaseViewModel {
     }
 
     private func handleWeatherError(_ error: WeatherError) {
+        //TODO: If given more time, I would have come up with a more types of error and clearer way of handling errors
         updateLoadingMessage(to: nil)
         switch error {
         case .networkError(let error), .decodingError(let error):

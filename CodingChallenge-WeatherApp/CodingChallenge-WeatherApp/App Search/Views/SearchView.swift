@@ -66,9 +66,6 @@ struct SearchView: View {
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .onSubmit {
                     vm.searchWeather(for: vm.searchText)
-//                    if let location = vm.locationManager.lastKnownLocation {
-//                        vm.fetchWeatherForCurrentLocation(location: location)
-//                    }
                 }
                 .submitLabel(.search)
                 .disableAutocorrection(verticalSizeClass == .compact ? true : false) //reduce keyboard height on small height (landscape on iPhone)
@@ -93,24 +90,33 @@ struct SearchView: View {
 
     @ViewBuilder var weatherView: some View {
         if let weatherData = vm.weatherData {
-            Text(weatherData.cityName)
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            Button {
+                vm.didTransitionToDetail.send(weatherData)
+            } label: {
+                VStack(spacing: vStackPadding) {
+                    //TODO: If given more time, come up with a custom Text view/modifiers
+                    Text(weatherData.cityName)
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundStyle(Color.primary)
 
-            if let weatherIcon = vm.weatherIcon {
-                Image(uiImage: weatherIcon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 100, height: 100)
+                    if let weatherIcon = vm.weatherIcon {
+                        Image(uiImage: weatherIcon)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 100, height: 100)
+                    }
+
+                    Text("\(String(format: "%.1f", weatherData.temperature))\(measurementType.symbol)")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.primary)
+
+                    Text(weatherData.description)
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                }
             }
-
-            Text("\(String(format: "%.1f", weatherData.temperature))\(measurementType.symbol)")
-                .font(.title)
-                .fontWeight(.semibold)
-
-            Text(weatherData.description)
-                .font(.title3)
-                .foregroundColor(.secondary)
         }
     }
 }

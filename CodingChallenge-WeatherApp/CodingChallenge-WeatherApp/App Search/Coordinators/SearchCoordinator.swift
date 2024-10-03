@@ -9,23 +9,17 @@ import SwiftUI
 import Combine
 
 final class SearchCoordinator: Router<SearchRoute> {
-    @Published var route: SearchRoute
 
     private var id: UUID = UUID()
-    private var cancellables = Set<AnyCancellable>()
-
-    init(route: SearchRoute = .search) {
-        self.route = route
-        super.init()
-    }
 
     @ViewBuilder func build(locationManager: LocationManager) -> some View {
-        switch self.route {
-        case .search:
-            searchView(locationManager: locationManager)
-        case .weatherDetail:
-            searchDetailView(weatherData: fakeWeatherData)
-        }
+        searchView(locationManager: locationManager)
+            .navigationDestination(for: SearchRoute.self) { route in
+                switch route {
+                case .weatherDetail(let weatherData):
+                    SearchDetailView(weatherData: weatherData)
+                }
+            }
     }
 
     // MARK: Required methods for class to conform to Hashable
@@ -45,29 +39,19 @@ final class SearchCoordinator: Router<SearchRoute> {
     //MARK: - Permission Methods
     func makeSearchViewModel(locationManager: LocationManager) -> SearchViewModel {
         let vm = SearchViewModel(locationManager: locationManager)
+        vm.didTransitionToDetail
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] weatherData in
+                self?.showWeatherDetail(weatherData)
+            })
+            .store(in: &subscriptions)
         return vm
     }
-
-    private func searchDetailView(weatherData: WeatherData) -> some View {
-//        let viewModel = SearchDetailsViewModel(userID: userID ?? 0)
-//        let userDetailsView = SearchDetailsView(viewModel: viewModel)
-        return SearchDetailView(weatherData: fakeWeatherData)
-    }
-
-    // MARK: View Bindings
-    //    private func bind(view: SearchView) {
-    //        view.didClickUser
-    //            .receive(on: DispatchQueue.main)
-    //            .sink(receiveValue: { [weak self] user in
-    //                self?.showWeatherDetail(for: user)
-    //            })
-    //            .store(in: &cancellables)
-    //    }
 }
 
 // MARK: Navigation Related Extensions
 extension SearchCoordinator {
-    private func showWeatherDetail(for weather: WeatherData) {
-        route = .weatherDetail
+    private func showWeatherDetail(_ weather: WeatherData) {
+        navigationPath.append(.weatherDetail(weatherData: weather))
     }
 }

@@ -11,7 +11,6 @@ import Combine
 
 class OnboardingViewModel: BaseViewModel {
     @Published var locationManager: LocationManager
-//    let locationPermissionGranted = PassthroughSubject<Bool, Never>()
 
     init(locationManager: LocationManager = LocationManager()) {
         self.locationManager = locationManager

@@ -23,12 +23,6 @@ final class OnboardingCoordinator: ObservableObject {
     //MARK: - Permission Methods
     func makeOnboardingViewModel(locationManager: LocationManager) -> OnboardingViewModel {
         let vm = OnboardingViewModel(locationManager: locationManager)
-        //            vm.locationPermissionGranted
-        //            .receive(on: DispatchQueue.main)
-        //            .sink(receiveValue: { [weak self] didGrant in
-        //
-        //            })
-        //            .store(in: &cancellables)
         return vm
     }
 }
